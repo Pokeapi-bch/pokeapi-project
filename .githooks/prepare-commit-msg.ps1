@@ -1,10 +1,8 @@
-# Example prepare-commit-msg hook script in PowerShell
-Write-Host "Running prepare-commit-msg hook..."
-
-# Example: Add a prefix to commit message (customize as needed)
 param(
     [string]$commitMsgFile
 )
+
+Write-Host "Running prepare-commit-msg hook..."
 
 if (Test-Path $commitMsgFile) {
     $content = Get-Content $commitMsgFile
