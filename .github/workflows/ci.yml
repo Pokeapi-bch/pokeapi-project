@@ -116,13 +116,15 @@ jobs:
         continue-on-error: true
 #
   gitleaks-scan:
-    needs: tests-and-coverage
+    needs: [flake8-linter, bandit-security, pip-audit, tests-and-coverage]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
-      - name: Scan for secrets with Gitleaks
+      - name: 🔍 Scan for secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .github/gitleaks.toml
         continue-on-error: true
         
 
