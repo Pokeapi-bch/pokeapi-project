@@ -1,0 +1,74 @@
+name: CD - Deploy FastAPI
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ghcr.io/bastianchamblas/pokeapi-project
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write        
+      packages: write        
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🧮 Calculate next tag version
+        id: tagger
+        run: |
+          git fetch --tags
+          latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || echo "v0.0.0")
+          echo "Latest tag: $latest"
+          version=$(echo $latest | awk -F. '{printf "v%d.%d.%d", $1 == "v0" ? 0 : substr($1,2), $2, $3 + 1}')
+          echo "New version: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: 🏷️ Create and push Git tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.tagger.outputs.version }}
+          git push origin ${{ steps.tagger.outputs.version }}
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 🛠 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.version }}
+
+      - name: 🚦 Run temporary container and health check
+        run: |
+          docker run -d -p 8000:8000 --name fastapi-app ${{ env.IMAGE_NAME }}:latest
+          sleep 5
+          curl --fail http://localhost:8000/docs || curl --fail http://localhost:8000/health
+        continue-on-error: true
+
+      - name: 🧹 Stop and remove container
+        run: docker rm -f fastapi-app
+        if: always()
