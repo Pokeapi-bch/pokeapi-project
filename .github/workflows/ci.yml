@@ -13,13 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Añadido: Configurar Python para instalar pre-commit
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10' # 
+          python-version: '3.10'
 
-      # Añadido: Instalar el framework pre-commit
       - name: Install pre-commit
         run: pip install pre-commit
 
@@ -27,50 +25,11 @@ jobs:
         shell: pwsh
         run: .\.githooks\pre-commit.ps1
 
-  prepare-commit-msg-hook:
-    needs: pre-commit-hook
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # : Configurar Python para instalar pre-commit
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # : Instalar el framework pre-commit 
-      - name: Install pre-commit
-        run: pip install pre-commit
-
-      - name: Run prepare-commit-msg hook
-        shell: pwsh
-        run: .\.githooks\prepare-commit-msg.ps1 commit_message.txt
-
-  pre-push-hook:
-    needs: prepare-commit-msg-hook
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # : Configurar Python para instalar pre-commit
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # : Instalar el framework pre-commit 
-      - name: Install pre-commit
-        run: pip install pre-commit
-
-      - name: Run pre-push hook
-        shell: pwsh
-        run: .\.githooks\pre-push.ps1
+  # prepare-commit-msg-hook y pre-push-hook han sido eliminados
+  # ya que están diseñados para hooks locales de Git.
 
   flake8-linter:
-    needs: pre-push-hook
+    needs: pre-commit-hook # Ahora depende directamente de pre-commit-hook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -83,7 +42,7 @@ jobs:
       - run: flake8 pokeapi-project/main.py pokeapi-project/tests/
 
   bandit-security:
-    needs: flake8-linter
+    needs: flake8-linter # Las dependencias de aquí en adelante no necesitan cambio
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
