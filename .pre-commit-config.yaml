@@ -4,7 +4,7 @@
 # Definición de las versiones mínimas de pre-commit y Python
 minimum_pre_commit_version: 2.18.0
 default_language_version:
-  python: python3.10
+  python: python3.11
 
 # Excluye archivos o directorios específicos de ser procesados por pre-commit
 exclude: |
