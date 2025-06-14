@@ -98,8 +98,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Scan for secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
-        # AÑADIDO: Pasa el secreto GITLEAKS_LICENSE explícitamente como una variable de entorno.
-        env:
+        env: # <--- Asegúrate de que esta sección 'env' esté presente
+          # AÑADIR ESTA LÍNEA para el GITHUB_TOKEN:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        # continue-on-error: true #
         # Se elimina 'config-path' ya que no es compatible con gitleaks-action@v2
         # continue-on-error: true # Deja esta línea si quieres que el job pase aunque encuentre secretos.
