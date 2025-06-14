@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import httpx
 import os
+import re  # Agregado para validación
 
 app = FastAPI()
 
@@ -14,6 +15,10 @@ async def root():
 
 @app.get("/pokemon/{name}")
 async def get_pokemon(name: str):
+    # Validación de entrada: solo letras y guiones permitidos
+    if not re.fullmatch(r"[a-zA-Z\-]+", name):
+        raise HTTPException(status_code=400, detail="Nombre inválido. Solo se permiten letras y guiones.")
+
     url = f"https://pokeapi.co/api/v2/pokemon/{name.lower()}"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
