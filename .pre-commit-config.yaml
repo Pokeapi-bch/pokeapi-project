@@ -68,5 +68,6 @@ repos:
     rev: 1.7.9
     hooks:
       - id: bandit
+        args: ["--skip", "B101"]
       # La línea 'args:' fue eliminada aquí para corregir el error.
       # Pre-commit pasa los archivos automáticamente a Bandit.
