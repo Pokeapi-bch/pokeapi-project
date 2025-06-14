@@ -60,7 +60,7 @@ jobs:
       - run: |
           pip install -r pokeapi-project/requirements.txt bandit
       - run: bandit -r pokeapi-project/
-        continue-on-error: true  # Solo advertencia, no rompe el flujo
+        continue-on-error: true
 
   pip-audit:
     needs: bandit-security
