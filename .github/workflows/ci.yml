@@ -58,7 +58,8 @@ jobs:
       - run: |
           pip install -r requirements.txt bandit
       # Comando corregido: Usa '.' para escanear la raíz del repositorio y '--skip B101' para ignorar asserts
-      - run: bandit -r . --skip B101
+      # Se añade '--exclude venv/' para ignorar el entorno virtual
+      - run: bandit -r . --skip B101 --exclude venv/
         continue-on-error: true # Permite que el job pase
 
   pip-audit:
@@ -96,12 +97,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        # AÑADIDO: Descargar todo el historial de Git para Gitleaks
+        with:
+          fetch-depth: 0 # Clona todo el historial para que Gitleaks pueda escanear correctamente
       - name: Scan for secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
-        env: # <--- Asegúrate de que esta sección 'env' esté presente
-          # AÑADIR ESTA LÍNEA para el GITHUB_TOKEN:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-        # continue-on-error: true #
+        env: # AÑADIDO: Pasa los secretos explícitamente como variables de entorno
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token requerido para escanear PRs
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Tu clave de licencia
         # Se elimina 'config-path' ya que no es compatible con gitleaks-action@v2
-        # continue-on-error: true # Deja esta línea si quieres que el job pase aunque encuentre secretos.
+        # continue-on-error: true # Puedes descomentar si quieres que pase aunque encuentre secretos
