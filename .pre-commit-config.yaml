@@ -1,0 +1,73 @@
+# .pre-commit-config.yaml
+# Configuración para el framework pre-commit.
+
+# Definición de las versiones mínimas de pre-commit y Python
+minimum_pre_commit_version: 2.18.0
+default_language_version:
+  python: python3.11
+
+# Excluye archivos o directorios específicos de ser procesados por pre-commit
+exclude: |
+  (?x)^(
+      \.git/|
+      \.vscode/|
+      \.mypy_cache/|
+      \.pytest_cache/|
+      \.ruff_cache/|
+      \.venv/|
+      env/|
+      venv/|
+      \.pre-commit-config.yaml|
+      # Excluye tu archivo rar, que no es parte del código fuente
+      pokeapi-project.rar|
+      # Si tienes archivos generados o binarios que no deben ser linted
+      # por ejemplo, archivos de Docker o de construcción
+      __pycache__/|
+      \.githooks/
+  )$
+
+# Define los repositorios de hooks y los hooks específicos a usar
+repos:
+  # Repositorio de hooks generales (útiles para cualquier tipo de archivo)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-case-conflict
+      - id: detect-private-key
+
+  # Formateador de código Python: Black (altamente recomendado para consistencia)
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        args: [--line-length=88]
+
+  # Linter de código Python: Ruff (es un linter muy rápido y moderno, puede reemplazar a Flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # Para verificar importaciones (útil para mantener el orden y limpieza de importaciones)
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Para comprobaciones de seguridad básicas (complementa a Bandit)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["--skip", "B101"]
+      # La línea 'args:' fue eliminada aquí para corregir el error.
+      # Pre-commit pasa los archivos automáticamente a Bandit.

@@ -1,0 +1,4 @@
+# .gitignore
+# ... (otras líneas que ya tengas) ...
+
+.env
