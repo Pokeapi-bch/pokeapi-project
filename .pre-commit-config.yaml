@@ -2,9 +2,9 @@
 # Configuración para el framework pre-commit.
 
 # Definición de las versiones mínimas de pre-commit y Python
-minimum_pre_commit_version: 2.18.0 # Puedes ajustar si necesitas una versión más reciente
+minimum_pre_commit_version: 2.18.0
 default_language_version:
-  python: python3.10 # 
+  python: python3.10
 
 # Excluye archivos o directorios específicos de ser procesados por pre-commit
 exclude: |
@@ -30,57 +30,43 @@ exclude: |
 repos:
   # Repositorio de hooks generales (útiles para cualquier tipo de archivo)
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0 # Siempre usa la última versión estable (revisa su GitHub para actualizar)
+    rev: v4.6.0
     hooks:
-      - id: trailing-whitespace # Elimina espacios en blanco al final de las líneas
-      - id: end-of-file-fixer # Asegura que los archivos terminen con una nueva línea
-      - id: check-yaml # Comprueba la sintaxis de archivos YAML
-      - id: check-json # Comprueba la sintaxis de archivos JSON
-      - id: check-added-large-files # Advierte sobre archivos grandes añadidos
-        args: ['--maxkb=500'] # Máximo de 500 KB por archivo
-      - id: check-case-conflict # Busca conflictos de mayúsculas/minúsculas en nombres de archivo
-      - id: detect-private-key # Busca claves privadas expuestas (seguridad)
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-case-conflict
+      - id: detect-private-key
 
   # Formateador de código Python: Black (altamente recomendado para consistencia)
   - repo: https://github.com/psf/black
-    rev: 24.4.2 # Usa la última versión compatible con tu Python
+    rev: 24.4.2
     hooks:
       - id: black
-        args: [--line-length=88] # Puedes ajustar la longitud de línea si lo deseas
+        args: [--line-length=88]
 
   # Linter de código Python: Ruff (es un linter muy rápido y moderno, puede reemplazar a Flake8)
-  # Si ya usas Flake8 en tu CI, Ruff puede ser una mejora o puedes seguir con Flake8.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.0 # Usa la última versión estable
+    rev: v0.5.0
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix] # --fix intenta arreglar automáticamente, --exit-non-zero-on-fix asegura que falle si hay arreglos pendientes
-      - id: ruff-format # Formateador de Ruff, si no usas Black o si quieres complementar
-
-  # Si prefieres seguir usando Flake8 en lugar de Ruff:
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 7.1.0 # Usa la última versión estable
-  #   hooks:
-  #     - id: flake8
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
 
   # Para verificar importaciones (útil para mantener el orden y limpieza de importaciones)
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2 # Usa la última versión estable
+    rev: 5.13.2
     hooks:
       - id: isort
-        args: ["--profile", "black"] # Configura isort para que sea compatible con Black
+        args: ["--profile", "black"]
 
   # Para comprobaciones de seguridad básicas (complementa a Bandit)
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.9 # Última versión estable
+    rev: 1.7.9
     hooks:
       - id: bandit
-        args: [-r, pokeapi-project/, -c, bandit.yaml] # Asegúrate de tener un archivo bandit.yaml si usas -c
-        # Si no tienes bandit.yaml, puedes usar: args: [-r, pokeapi-project/]
-        # Considera usar --skip B101,B102,B103 etc. para saltar warnings específicos
-
-  # Si tienes MyPy para type checking
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.10.0 # Última versión estable
-  #   hooks:
-  #     - id: mypy
+      # La línea 'args:' fue eliminada aquí para corregir el error.
+      # Pre-commit pasa los archivos automáticamente a Bandit.
