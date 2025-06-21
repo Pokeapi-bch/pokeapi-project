@@ -31,25 +31,23 @@ jobs:
   # LOS JOBS 'prepare-commit-msg-hook' y 'pre-push-hook' HAN SIDO ELIMINADOS
   # porque son hooks diseñados para el flujo de trabajo Git local y no CI.
 
-  # --- AÑADIMOS EL NUEVO JOB docker-build ---
+  # --- NUEVO JOB docker-build ---
   docker-build:
-    needs: pre-commit-hook # Se ejecuta después del pre-commit hook, pero en paralelo con los linters
+    needs: pre-commit-hook
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build Docker image
-        uses: docker/build-push-action@v5 # Usamos una acción popular para Docker
+        uses: docker/build-push-action@v5
         with:
-          context: . # El contexto es el directorio actual (raíz del repo)
-          push: false # No subimos la imagen a un registro, solo la construimos
-          tags: pokeapi-project:latest # Opcional: Nombre y tag para la imagen
-          load: true # Carga la imagen al docker daemon del runner (útil si hay tests con docker)
-          # cache-from: type=gha # Opcional: Para cachear layers y acelerar futuras builds
-          # cache-to: type=gha,mode=max # Opcional: Para cachear layers
+          context: .
+          push: false
+          tags: pokeapi-project:latest
+          load: true
 
   flake8-linter:
-    needs: pre-commit-hook # CORREGIDO: Ahora depende de 'pre-commit-hook'
+    needs: pre-commit-hook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -59,14 +57,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Asegura que todas las dependencias y herramientas estén
           pip install -r requirements.txt flake8 bandit pip-audit pytest
       - name: Run linter (flake8)
         run: flake8 main.py tests/ --max-line-length=99
-        continue-on-error: true # Permite que el job pase si hay warnings de linting
+        continue-on-error: true
 
   bandit-security:
-    needs: flake8-linter # Ya depende de flake8-linter
+    needs: flake8-linter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -80,7 +77,7 @@ jobs:
         continue-on-error: true
 
   pip-audit:
-    needs: bandit-security # Ya depende de bandit-security
+    needs: bandit-security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -94,7 +91,7 @@ jobs:
         continue-on-error: true
 
   tests-and-coverage:
-    needs: pip-audit # Ya depende de pip-audit
+    needs: pip-audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -105,16 +102,40 @@ jobs:
         run: |
           pip install -r requirements.txt pytest pytest-cov
           pip install pytest-asyncio
-      - name: Run tests and check coverage
+      - name: Run tests and generate coverage report # Modificado el nombre del paso
         run: |
-          PYTHONPATH=. pytest --cov=. --cov-fail-under=80 tests/
-      - name: Report coverage summary
-        run: coverage report
-        continue-on-error: true
+          PYTHONPATH=. pytest --cov=. --cov-fail-under=80 tests/ # Ejecuta tests y checkea cobertura
+          coverage json -o coverage.json # Genera reporte JSON para fácil lectura
+        continue-on-error: true # Permite que el job pase si la cobertura no cumple el mínimo
+
+      # --- AÑADIR ESTE NUEVO PASO PARA EL RESUMEN DE COBERTURA ---
+      - name: Generate Coverage Summary for Job Overview
+        if: always() # Asegura que este paso se ejecute siempre, incluso si los tests fallan
+        run: |
+          # Extrae el porcentaje total de cobertura del archivo JSON
+          COVERAGE_PERCENTAGE=$(jq -r '.totals.percent_covered' coverage.json)
+          # Determina el estado del badge (círculo verde/rojo)
+          if (( $(echo "$COVERAGE_PERCENTAGE < 80" | bc -l) )); then
+            STATUS_EMOJI=":red_circle:"
+            STATUS_TEXT="FALLA"
+          else
+            STATUS_EMOJI=":green_circle:"
+            STATUS_TEXT="PASA"
+          fi
+
+          echo "### Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total Coverage:** **$COVERAGE_PERCENTAGE%** $STATUS_EMOJI" >> $GITHUB_STEP_SUMMARY
+          echo "  ($STATUS_TEXT: Requerido: 80%)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Para detalles completos de las pruebas y cobertura, ver los logs del paso 'Run tests and generate coverage report'." >> $GITHUB_STEP_SUMMARY
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.job_summary }} # Variable de entorno para el resumen del job
+        shell: bash # Usa bash para los comandos 'jq' y 'bc'
 
   gitleaks-scan:
-    # CORREGIDO: Añadimos 'docker-build' a las dependencias. Esto significa que gitleaks solo correrá
-    # una vez que tanto la cadena de linters/tests como el build de docker hayan terminado.
     needs: [flake8-linter, bandit-security, pip-audit, tests-and-coverage, docker-build]
     runs-on: ubuntu-latest
     steps:
