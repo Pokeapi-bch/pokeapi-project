@@ -56,13 +56,12 @@ Este proyecto es una interfaz sencilla para consultar información de Pokémon u
 
 
 
-   ```bash
+
 
    python -m venv venv
 
    source venv/bin/activate  # En Windows: venv\Scripts\activate
 
-   ```
 
 
 
@@ -70,8 +69,7 @@ Este proyecto es una interfaz sencilla para consultar información de Pokémon u
 
 
 
-   ```bash
-
+   ```
    pip install -r requirements.txt
 
    ```
@@ -82,7 +80,7 @@ Este proyecto es una interfaz sencilla para consultar información de Pokémon u
 
 
 
-   ```bash
+   ```
 
    uvicorn main:app --reload
 
@@ -110,8 +108,7 @@ Este proyecto es una interfaz sencilla para consultar información de Pokémon u
 
 
 
-   ```bash
-
+   ``
    docker build -t pokeapi-project .
 
    ```
@@ -122,7 +119,7 @@ Este proyecto es una interfaz sencilla para consultar información de Pokémon u
 
 
 
-   ```bash
+   ```
 
    docker run -p 8000:8000 pokeapi-project
 
