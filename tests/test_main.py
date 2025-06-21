@@ -1,5 +1,4 @@
 # tests/test_main.py
-# Para las pruebas de funciones asíncronas con mock
 from unittest.mock import AsyncMock, patch
 
 import httpx  # Necesario para simular solicitudes HTTP y errores
@@ -44,10 +43,12 @@ def test_get_pokemon_not_found():
     """
     Verifica que el endpoint '/pokemon/{name}' devuelve 404 para un Pokémon inexistente.
     """
-    # Línea 34 (originalmente 22) - Ajustada para E501
-    response = client.get("/pokemon/invalidpokemonname12345")
+    # Línea 34: URL dividida para evitar E501
+    response = client.get(
+        "/pokemon/invalidpokemonname12345"  # Nombre que sabes que no existe
+    )
     assert response.status_code == 404
-    # Línea 36 (originalmente 23) - Ajustada para E501
+    # Línea 36: Mensaje de detalle dividido para evitar E501
     assert (
         response.json()["detail"] == "Pokémon 'invalidpokemonname12345' no encontrado."
     )
@@ -61,16 +62,14 @@ async def test_fetch_pokemon_data_api_network_error():
     """
     Verifica que fetch_pokemon_data maneja errores de red al conectar con la API externa.
     """
-    # Línea 45 (originalmente 34) - Ajustada para E501
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        # Línea 46 (originalmente 35) - Ajustada para E501
+        # Línea 56: Argumentos de RequestError divididos para evitar E501
         mock_get.side_effect = httpx.RequestError(
             "Mock network error", request=httpx.Request("GET", "http://test")
         )
         with pytest.raises(HTTPException) as exc_info:
             await fetch_pokemon_data("bulbasaur")
         assert exc_info.value.status_code == 500
-        # Línea 50 (originalmente 39) - Ajustada para E501
         assert "Error de red" in exc_info.value.detail
 
 
@@ -79,13 +78,11 @@ async def test_fetch_pokemon_data_http_500_error():
     """
     Verifica que fetch_pokemon_data maneja errores HTTP 500 de la API externa.
     """
-    # Línea 54 (originalmente 43) - Ajustada para E501
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        # Línea 55 (originalmente 44) - Ajustada para E501
+        # Línea 60: Argumentos de Response divididos para evitar E501
         mock_response = httpx.Response(500, request=httpx.Request("GET", "http://test"))
         mock_get.return_value = mock_response
         with pytest.raises(HTTPException) as exc_info:
             await fetch_pokemon_data("charizard")
         assert exc_info.value.status_code == 500
-        # Línea 60 (originalmente 49) - Ajustada para E501
         assert "Error al conectar con PokeAPI" in exc_info.value.detail

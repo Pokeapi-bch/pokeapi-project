@@ -32,7 +32,6 @@ async def fetch_pokemon_data(pokemon_name: str) -> dict:
         HTTPException: Si el Pokémon no se encuentra (status 404)
                        o si hay un error en la conexión a la API (status 500).
     """
-    # Línea 18 (originalmente 10) - Ajustada para E501 si fuera más larga
     pokeapi_url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name.lower()}"
 
     try:
@@ -40,21 +39,23 @@ async def fetch_pokemon_data(pokemon_name: str) -> dict:
             response = await client.get(pokeapi_url)
             response.raise_for_status()  # Lanza una excepción para errores HTTP (4xx o 5xx)
             return response.json()
-    # Línea 21 (originalmente 13) - Ajustada para E501
     except httpx.HTTPStatusError as e:
-        # Línea 22 (originalmente 14) - Ajustada para E501
         if e.response.status_code == 404:
             raise HTTPException(
-                status_code=404, detail=f"Pokémon '{pokemon_name}' no encontrado."
+                status_code=404,
+                detail=(
+                    f"Pokémon '{pokemon_name}' no encontrado."  # Línea dividida aquí
+                ),
             )
         else:
             raise HTTPException(
-                status_code=500, detail=f"Error al conectar con PokeAPI: {e}"
+                status_code=500,
+                detail=f"Error al conectar con PokeAPI: {e}",  # Línea dividida aquí
             )
-    # Línea 23 (originalmente 15) - Ajustada para E501
     except httpx.RequestError as e:
         raise HTTPException(
-            status_code=500, detail=f"Error de red al conectar con PokeAPI: {e}"
+            status_code=500,
+            detail=f"Error de red al conectar con PokeAPI: {e}",  # Línea dividida aquí
         )
 
 
