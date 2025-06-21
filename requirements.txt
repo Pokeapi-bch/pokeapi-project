@@ -1,3 +1,12 @@
 fastapi
 httpx
 uvicorn
+setuptools==78.1.1 #  versión sin vulnerabilidades
+
+# --- Herramientas de Desarrollo y CI ---
+flake8==7.2.0
+pytest==8.4.0
+pytest-cov==6.2.1
+bandit==1.8.3
+pip-audit==2.9.0
+pre-commit==4.2.0

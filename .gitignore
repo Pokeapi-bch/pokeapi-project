@@ -1,0 +1,24 @@
+# .gitignore
+
+# Entorno virtual de Python
+venv/
+env/
+
+# Archivos de byte-code de Python
+*.pyc
+__pycache__/
+
+# Carpetas de caché de herramientas
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Archivos de configuración local
+.env
+
+# Archivos de log
+*.log
+
+# Archivos de tu sistema operativo (si se generan)
+.DS_Store # macOS
+Thumbs.db # Windows
