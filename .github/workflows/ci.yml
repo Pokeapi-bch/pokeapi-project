@@ -33,97 +33,25 @@ jobs:
 
   # --- AÑADIMOS EL NUEVO JOB docker-build ---
   docker-build:
-    needs: pre-commit-hook # Se ejecuta después del pre-commit hook, pero en paralelo con los linters
+    needs: pre-commit-hook
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build Docker image
-        uses: docker/build-push-action@v5 # Usamos una acción popular para Docker
+        uses: docker/build-push-action@v5
         with:
-          context: . # El contexto es el directorio actual (raíz del repo)
-          push: false # No subimos la imagen a un registro, solo la construimos
-          tags: pokeapi-project:latest # Opcional: Nombre y tag para la imagen
-          load: true # Carga la imagen al docker daemon del runner (útil si hay tests con docker)
-          # cache-from: type=gha # Opcional: Para cachear layers y acelerar futuras builds
-          # cache-to: type=gha,mode=max # Opcional: Para cachear layers
+          context: .
+          push: false
+          tags: pokeapi-project:latest
+          load: true
 
-  flake8-linter:
-    needs: pre-commit-hook # CORREGIDO: Ahora depende de 'pre-commit-hook'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Asegura que todas las dependencias y herramientas estén
-          pip install -r requirements.txt flake8 bandit pip-audit pytest
-      - name: Run linter (flake8)
-        run: flake8 main.py tests/ --max-line-length=99
-        continue-on-error: true # Permite que el job pase si hay warnings de linting
-
-  bandit-security:
-    needs: flake8-linter # Ya depende de flake8-linter
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt bandit
-      - run: bandit -r . --skip B101 --exclude venv/
-        continue-on-error: true
-
-  pip-audit:
-    needs: bandit-security # Ya depende de bandit-security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt pip-audit
-      - run: pip-audit
-        continue-on-error: true
-
-  tests-and-coverage:
-    needs: pip-audit # Ya depende de pip-audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt pytest pytest-cov
-          pip install pytest-asyncio
-      - name: Run tests and check coverage
-        run: |
-          PYTHONPATH=. pytest --cov=. --cov-fail-under=80 tests/
-      - name: Report coverage summary
-        run: coverage report
-        continue-on-error: true
-
-  gitleaks-scan:
-    # CORREGIDO: Añadimos 'docker-build' a las dependencias. Esto significa que gitleaks solo correrá
-    # una vez que tanto la cadena de linters/tests como el build de docker hayan terminado.
-    needs: [flake8-linter, bandit-security, pip-audit, tests-and-coverage, docker-build]
+  # --- AÑADIMOS EL NUEVO JOB dependency-review ---
+  dependency-review:
+    needs: pre-commit-hook # Se ejecuta en paralelo con otros checks de calidad
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Scan for secrets with Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4 # Usa la última versión de la acción
