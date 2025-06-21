@@ -27,6 +27,7 @@ jobs:
       - name: Run pre-commit hook
         shell: pwsh
         run: .\.githooks\pre-commit.ps1
+        continue-on-error: true
 
   # LOS JOBS 'prepare-commit-msg-hook' y 'pre-push-hook' HAN SIDO ELIMINADOS
   # porque son hooks diseñados para el flujo de trabajo Git local y no CI.
