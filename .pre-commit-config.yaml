@@ -46,7 +46,7 @@ repos:
     rev: 24.4.2 # Usa la última versión compatible con tu Python
     hooks:
       - id: black
-        args: [--line-length=88] # Puedes ajustar la longitud de línea si lo deseas
+        args: [--line-length=99] # Puedes ajustar la longitud de línea si lo deseas
 
   # Linter de código Python: Ruff (es un linter muy rápido y moderno, puede reemplazar a Flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -83,3 +83,10 @@ repos:
   #   rev: v1.10.0 # Última versión estable
   #   hooks:
   #     - id: mypy
+  # Verificación de Tipos Estática: MyPy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0 # Asegúrate de que la versión coincida con la que pusiste en requirements.txt
+    hooks:
+      - id: mypy
+      # Puedes añadir argumentos específicos si lo necesitas, ej:
+      # args: [--ignore-missing-imports, --follow-imports=skip]

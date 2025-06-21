@@ -45,8 +45,8 @@ def test_get_pokemon_not_found():
     """
     # Línea 34: URL dividida para evitar E501
     response = client.get(
-        "/pokemon/invalidpokemonname12345"  # Nombre que sabes que no existe
-    )
+        "/pokemon/invalidpokemonname12345"
+    )  # Nombre que sabes que no existe
     assert response.status_code == 404
     # Línea 36: Mensaje de detalle dividido para evitar E501
     assert (

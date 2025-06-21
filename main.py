@@ -44,8 +44,8 @@ async def fetch_pokemon_data(pokemon_name: str) -> dict:
             raise HTTPException(
                 status_code=404,
                 detail=(
-                    f"Pokémon '{pokemon_name}' no encontrado."  # Línea dividida aquí
-                ),
+                    f"Pokémon '{pokemon_name}' no encontrado."
+                ),  # Línea dividida aquí
             )
         else:
             raise HTTPException(
