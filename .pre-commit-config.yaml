@@ -46,21 +46,19 @@ repos:
     rev: 24.4.2 # Usa la última versión compatible con tu Python
     hooks:
       - id: black
-        args: [--line-length=99] # Puedes ajustar la longitud de línea si lo deseas
+        args: [--line-length=99] # Ajustada a 99 para ser consistente con Flake8
 
-  # Linter de código Python: Ruff (es un linter muy rápido y moderno, puede reemplazar a Flake8)
+  # Linter de código Python: Ruff (es un linter muy rápido y moderno)
+  # Solo se usa como linter, no como formateador (ruff-format deshabilitado)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.0 # Usa la última versión estable
     hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix] # --fix intenta arreglar automáticamente, --exit-non-zero-on-fix asegura que falle si hay arreglos pendientes
-      - id: ruff-format # Formateador de Ruff, si no usas Black o si quieres complementar
-
-  # Si prefieres seguir usando Flake8 en lugar de Ruff, descomenta este bloque:
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 7.1.0 # Usa la última versión estable
-  #   hooks:
-  #     - id: flake8
+      - id: ruff # Solo el linter, con auto-fix
+        args: [--fix, --exit-non-zero-on-fix]
+      # EL HOOK 'ruff-format' HA SIDO COMENTADO/ELIMINADO AQUÍ
+      # para evitar conflictos de formateo con Black y asegurar idempotencia.
+      # Black será el único formateador principal.
+      # - id: ruff-format # ESTA LÍNEA DEBE ESTAR COMENTADA O ELIMINADA
 
   # Para verificar importaciones (útil para mantener el orden y limpieza de importaciones)
   - repo: https://github.com/PyCQA/isort
@@ -75,14 +73,7 @@ repos:
     hooks:
       - id: bandit
         args: ["--skip", "B101", "--exclude", "venv/"] # Ignora B101 y excluye el venv/
-        # Si tiene un archivo de configuración de bandit (bandit.yaml), puedes añadir:
-        # args: ["--configfile", "bandit.yaml", "--skip", "B101", "--exclude", "venv/"]
 
-  # Si tienes MyPy para type checking, descomenta este bloque:
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.10.0 # Última versión estable
-  #   hooks:
-  #     - id: mypy
   # Verificación de Tipos Estática: MyPy
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0 # Asegúrate de que la versión coincida con la que pusiste en requirements.txt

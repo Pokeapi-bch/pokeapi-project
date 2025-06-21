@@ -44,14 +44,10 @@ def test_get_pokemon_not_found():
     Verifica que el endpoint '/pokemon/{name}' devuelve 404 para un Pokémon inexistente.
     """
     # Línea 34: URL dividida para evitar E501
-    response = client.get(
-        "/pokemon/invalidpokemonname12345"
-    )  # Nombre que sabes que no existe
+    response = client.get("/pokemon/invalidpokemonname12345")  # Nombre que sabes que no existe
     assert response.status_code == 404
     # Línea 36: Mensaje de detalle dividido para evitar E501
-    assert (
-        response.json()["detail"] == "Pokémon 'invalidpokemonname12345' no encontrado."
-    )
+    assert response.json()["detail"] == "Pokémon 'invalidpokemonname12345' no encontrado."
 
 
 # --- Pruebas Opcionales: Para la función fetch_pokemon_data (mockeando la API externa) ---
