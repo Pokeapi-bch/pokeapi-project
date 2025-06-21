@@ -126,6 +126,3 @@ jobs:
         with:
           config-path: .github/gitleaks.toml
         continue-on-error: true
-        
-
-
